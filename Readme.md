@@ -1,0 +1,1 @@
+![Garçon](./waiter-clip-art.jpeg)
