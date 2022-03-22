@@ -4,8 +4,8 @@
   "description": "![Garçon](./garcon.png)",
   "main": "index.js",
   "scripts": {
-    "start": "node ./dist/index.ts",
-    "dev": "nodemon ./src/index.ts",
+    "dev": "node ./dist/index.ts",
+    "start": "nodemon ./src/index.ts",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
