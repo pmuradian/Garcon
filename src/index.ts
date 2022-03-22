@@ -1,5 +1,5 @@
-const { App, subtype } = require('@slack/bolt');
-
+import 'dotenv/config'
+import {App, subtype} from '@slack/bolt'
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -8,10 +8,10 @@ const app = new App({
   appToken: process.env.SLACK_APP_TOKEN,
   // Socket Mode doesn't listen on a port, but in case you want your app to respond to OAuth,
   // you still need to listen on some port!
-  port: process.env.PORT || 3000
+  port: Number(process.env.PORT) || 3000
 });
 
-app.event('message', async ({ message, say }) => {
+app.event('message', async ({ message, say }: any): Promise<any> => {
   // say() sends a message to the channel where the event was triggered
   await say(`Hey there <@${message.user}>!`);
 });
