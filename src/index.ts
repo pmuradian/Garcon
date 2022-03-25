@@ -1,6 +1,5 @@
 import 'dotenv/config'
-import {App, subtype} from '@slack/bolt'
-import {saveOrder} from './orders';
+import {App} from '@slack/bolt'
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
