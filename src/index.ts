@@ -1,6 +1,9 @@
-import 'dotenv/config'
-import {App, subtype} from '@slack/bolt'
+import 'dotenv/config';
+import { App, subtype } from '@slack/bolt';
+import puppeteer from 'puppeteer';
+import addProductsToBasket from './resolvers/addProductsToBasket';
 import {saveOrder} from './orders';
+
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -12,14 +15,24 @@ const app = new App({
   port: Number(process.env.PORT) || 3000
 });
 
+export const URLBUYAM = 'https://buy.am/hy/?imProduct=191072&imOrderNumber=SW37604'
+
+
 app.event('message', async ({ message, say }: any): Promise<any> => {
-  // say() sends a message to the channel where the event was triggered
+  try {
+
+
+  } catch (e) {
+    console.error(e)
+  }
+
+
   await say(`Hey there <@${message.user}>!`);
 });
 
 (async () => {
   // Start your app
   await app.start();
-
+  
   console.log('⚡️ Bolt app is running!');
 })();
