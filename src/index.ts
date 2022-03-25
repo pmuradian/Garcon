@@ -2,6 +2,8 @@ import 'dotenv/config';
 import { App, subtype } from '@slack/bolt';
 import puppeteer from 'puppeteer';
 import addProductsToBasket from './resolvers/addProductsToBasket';
+import {saveOrder} from './orders';
+
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
