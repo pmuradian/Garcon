@@ -20,7 +20,7 @@ export const URLBUYAM = 'https://buy.am/hy/?imProduct=191072&imOrderNumber=SW376
 
 app.event('message', async ({ message, say }: any): Promise<any> => {
   try {
-
+    console.log(message);
 
   } catch (e) {
     console.error(e)
