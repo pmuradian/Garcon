@@ -20,7 +20,8 @@ export function saveOrder(order: Order): Order[] {
 }
 
 export function removeOrder(order: Order) {
-
+    array.splice(array.indexOf(order, 0), 1);
+    return array;
 }
 
 export function orderFromMessage(orderMessage: string, senderID: string): Order {
