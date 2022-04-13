@@ -1,18 +1,22 @@
 import { validateURL } from "./message";
+import { Dish } from "./specs/dish";
+import { Order } from "./specs/order";
 
-export interface Dish {
-    id: string;
-    url: string;
-};
-
-export interface Order {
-    dish: Dish;
-    requester: string;
-    comment: string;
-    quantity: number;
-};
+function fetchOrder(order: Order): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            order.dish.name = "some_name"; // TODO: fetch dish name from url
+            order.price = 1000; // TODO: fetch dish price from url
+            resolve(true);
+        }, 1000);
+    });
+}
 
 let array: Order[] = [];
+
+export function getOrders() {
+    return array;
+}
 
 export function saveOrder(order: Order): Order[] {
     array.push(order)
@@ -24,17 +28,45 @@ export function removeOrder(order: Order) {
     return array;
 }
 
+interface Invoice {
+    user: string;
+    orders: Order[];
+}
+
+export function generateInvoiceFor(orders: Order[]) {
+
+    let invoice: Invoice[] = orders.map(order => {
+        return {
+            user: order.requester,
+            orders: [order]
+        }
+    })
+
+    return invoice.reduce((acc: any, curr) => {
+        if (acc[curr.user] != undefined) {
+            let orders = acc[curr.user];
+            orders.push(...curr.orders);
+            acc[curr.user] = orders;
+        } else {
+            acc[curr.user] = curr.orders;
+        }
+        return acc;
+    }, {});
+}
+
 export function orderFromMessage(orderMessage: string, senderID: string): Order {
     let strippedOrder = orderMessage.split("\n")
 
     let order: Order = {
         dish: {
             id: "",
-            url: ""
+            url: "",
+            name: ""
         },
         requester: senderID,
         comment: "",
-        quantity: 1
+        quantity: 1,
+        price: 1000
     }
 
     const orderTwo = strippedOrder.forEach(element => {

@@ -3,8 +3,8 @@ import 'dotenv/config';
 import { App, subtype } from '@slack/bolt';
 import puppeteer from 'puppeteer';
 import addProductsToBasket from './resolvers/addProductsToBasket';
-import {saveOrder, orderFromMessage} from './orders';
-import { listeningState, orderState, confirmationState, cancelState, idelState, greetings, confirmations } from './message';
+import {saveOrder, orderFromMessage, getOrders} from './orders';
+import { listeningState, orderState, confirmationState, cancelState, idelState, greetings, confirmations, cancelations } from './message';
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -26,26 +26,76 @@ const Garçon = {
   state: idelState
 }
 
-app.event('message', async ({ message, say }: any): Promise<any> => {
+let timer: NodeJS.Timeout;
+const timeInterval = 15000 //1000 * 60 * 60;
+
+app.event
+
+app.event('message', async ({ message, say, client }: any): Promise<any> => {
   try {
-    if (message.text == "Hey Garçon") {
+
+    const result = await client.users.info({
+      user: message.user,
+   });
+   const selectedUser = result.user.name;
+   console.log(`@${selectedUser}`, 'ooooooooo');
+
+    if (message.text.toLowerCase() == "cancel" && timer) {
+      clearTimeout(timer);
+      Garçon.state = idelState;
+      say(cancelations[0]);
+      return;
+    }
+
+    console.log(Garçon);
+
+    if (message.text.toLowerCase() === "gey garçon" || 
+    message.text.toLowerCase() === "garçon" || 
+    message.text.toLowerCase() === "hey garcon" || 
+    message.text.toLowerCase() === "garcon" ||
+    message.text.toLowerCase() === '1') {
+
       Garçon.state = listeningState;
       say(greetings[Math.floor(Math.random() * greetings.length)]);
-    } else if (Garçon.state == listeningState && message.text == "I would like to place an order") {
+
+    } else if (Garçon.state === listeningState && 
+      message.text.toLowerCase() === "I would like to place an order".toLowerCase() || 
+      message.text.toLowerCase() === "2") {
+
       Garçon.state = orderState;
-      say("Please place your order in the following format\nlink : link to your order\ncomment : comment about your order\nquantity : quantity of your order");
-      say("comment and quantity are optional");
+        const f = {
+          ['*link*']: '_link to your order_',
+          ['*comment*']: '_comment about your order_',
+          ['*quantity*']: '_quantity of your order_'
+        }
+
+      say(JSON.stringify(f, null, 1).replace(/{|}|"/g,'')) 
+      say("*comment* and *quantity* fields are optional");
+      
+      // start a one hour timer
+       timer = setTimeout(() => {
+        Garçon.state = confirmationState;
+        say("Your time is up");
+        say("Please confirm order" + app.client.conversations.members)
+        // order foooooood
+      }, timeInterval);
+
     } else if(Garçon.state == orderState) {
       let order = await orderFromMessage(message.text, message.user);
       let orderConfirmation = await saveOrder(order);
+      if (orderConfirmation) {
+        say("Order saved for " + message.user);
+      }
+    } else if (Garçon.state == confirmationState && message.text.toLowerCase() == "confirm") {
       say("Order placed for " + message.user);
-      // say(confirmations[Math.floor(Math.random() * confirmations.length)]);
+    }else{
+      console.log('object');
     }
   } catch (e) {
     console.error(e)
+    timer && clearTimeout(timer);
+    Garçon.state = idelState;
   }
-
-  console.log(message)
 });
 
 (async () => {

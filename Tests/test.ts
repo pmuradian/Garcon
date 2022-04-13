@@ -1,18 +1,22 @@
 
-import {saveOrder, orderFromMessage, Dish, Order} from '../src/orders';
+import {saveOrder, orderFromMessage, generateInvoiceFor} from '../src/orders';
 import {validateURL} from '../src/message'
+import { Dish } from '../src/specs/dish';
+import { Order } from '../src/specs/order';
 
 // test adding order
 test('add order pushed an order in a list', () => {
     let testDish: Dish = {
         id: "some_id", 
-        url: "some_url"
+        url: "some_url",
+        name: "some_name"
     };
     let testOrder: Order = {
         dish: testDish,
         requester: "id of requesting person",
         comment: "without lettuce",
-        quantity: 3
+        quantity: 3,
+        price: 1000
     };
     let orders = saveOrder(testOrder);
     expect(orders.includes(testOrder)).toBe(true);
@@ -85,3 +89,43 @@ test('check order message to be correct', () => {
 //     let correctOrder = "lin: https://buy.am/hy/subtitle?imProduct=103983&imOrderNumber=f-28127";
 //     expect(validateOrder(correctOrder)).toBe(true)
 // })
+
+// Generate invoice
+
+test('check generated invoice', () => {
+    let orders: Order[] = [];
+    for (let i = 1; i < 5; i++) {
+        let testDish: Dish = {
+            id: "some_id + " + i, 
+            url: "some_url" + i,
+            name: "some_name" + i
+        };
+        let testOrder: Order = {
+            dish: testDish,
+            requester: "id of requesting person" + i,
+            comment: "without lettuce" + i,
+            quantity: i,
+            price: 100 * i
+        };
+        orders.push(testOrder);
+    }
+
+    for (let i = 1; i < 5; i++) {
+        let testDish: Dish = {
+            id: "some_id + " + i, 
+            url: "some_url" + i,
+            name: "some_name" + i
+        };
+        let testOrder: Order = {
+            dish: testDish,
+            requester: "id of requesting person" + i,
+            comment: "without lettuce" + i,
+            quantity: i,
+            price: 100 * i
+        };
+        orders.push(testOrder);
+    }
+
+    let invoice = generateInvoiceFor(orders);
+    // expect(invoice.length).toBe(orders.length) // to be changed
+})
