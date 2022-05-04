@@ -2,10 +2,10 @@
   "name": "@slack/bolt",
   "version": "1.0.0",
   "description": "![Garçon](./garcon.png)",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "dev": "node ./dist/index.ts",
-    "start": "nodemon ./src/index.ts",
+    "dev": "node ./dist/main.ts",
+    "start": "nodemon ./src/main.ts",
     "build": "tsc",
     "test": "jest"
   },

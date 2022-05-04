@@ -3,8 +3,9 @@ import 'dotenv/config';
 import { App, subtype } from '@slack/bolt';
 import puppeteer from 'puppeteer';
 import addProductsToBasket from './resolvers/addProductsToBasket';
-import {saveOrder, orderFromMessage, getOrders} from './orders';
-import { listeningState, orderState, confirmationState, cancelState, idelState, greetings, confirmations, cancelations } from './message';
+import {saveOrder, orderFromMessage, getOrders, generateInvoiceFor, removeAllOrders} from './functions/orders';
+import { listeningState, orderState, confirmationState, cancelState, idelState, greetings, confirmations, cancelations } from './specs/globals';
+import { json } from 'stream/consumers';
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -27,25 +28,24 @@ const Garçon = {
 }
 
 let timer: NodeJS.Timeout;
-const timeInterval = 15000 //1000 * 60 * 60;
+const timeInterval = 30000 //1000 * 60 * 60;
 
 app.event
 
 app.event('message', async ({ message, say, client }: any): Promise<any> => {
   try {
-
-    const result = await client.users.info({
-      user: message.user,
-   });
-   const selectedUser = result.user.name;
-   console.log(`@${selectedUser}`, 'ooooooooo');
-
     if (message.text.toLowerCase() == "cancel" && timer) {
       clearTimeout(timer);
       Garçon.state = idelState;
+      removeAllOrders();
       say(cancelations[0]);
       return;
     }
+
+    const result = await client.users.info({
+      user: message.user,
+    });
+    const selectedUser = result.user.name;
 
     console.log(Garçon);
 
@@ -62,7 +62,7 @@ app.event('message', async ({ message, say, client }: any): Promise<any> => {
       message.text.toLowerCase() === "I would like to place an order".toLowerCase() || 
       message.text.toLowerCase() === "2") {
 
-      Garçon.state = orderState;
+        Garçon.state = orderState;
         const f = {
           ['*link*']: '_link to your order_',
           ['*comment*']: '_comment about your order_',
@@ -76,19 +76,28 @@ app.event('message', async ({ message, say, client }: any): Promise<any> => {
        timer = setTimeout(() => {
         Garçon.state = confirmationState;
         say("Your time is up");
-        say("Please confirm order" + app.client.conversations.members)
+        say("This is your order, please pay attention");
+        console.log(JSON.stringify(generateInvoiceFor(getOrders()), null, 2));
+        say(JSON.stringify(generateInvoiceFor(getOrders())).replace(/{|}|"/g,''), null, 2);
+        say("@" + selectedUser + " please confirm your order");
         // order foooooood
       }, timeInterval);
 
-    } else if(Garçon.state == orderState) {
+    } else if (Garçon.state == orderState) {
       let order = await orderFromMessage(message.text, message.user);
       let orderConfirmation = await saveOrder(order);
+
       if (orderConfirmation) {
-        say("Order saved for " + message.user);
+        const result = await client.users.info({
+          user: message.user,
+        });
+
+        say("Order saved for @" + result.user.name);
       }
-    } else if (Garçon.state == confirmationState && message.text.toLowerCase() == "confirm") {
-      say("Order placed for " + message.user);
-    }else{
+    } else if (Garçon.state === confirmationState && message.text.toLowerCase() === "confirm" || message.text.toLowerCase() === "3") {
+      say("Order placed");
+      removeAllOrders();
+    } else {
       console.log('object');
     }
   } catch (e) {
@@ -102,5 +111,5 @@ app.event('message', async ({ message, say, client }: any): Promise<any> => {
   // Start your app
   await app.start();
   
-  console.log('⚡️ Bolt app is running!');
+  console.log('⚡️ Garçon app is running!');
 })();

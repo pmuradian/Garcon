@@ -1,6 +1,6 @@
 import { validateURL } from "./message";
-import { Dish } from "./specs/dish";
-import { Order } from "./specs/order";
+import { Dish } from "../specs/dish";
+import { Order } from "../specs/order";
 
 function fetchOrder(order: Order): Promise<boolean> {
     return new Promise((resolve, reject) => {
@@ -28,21 +28,22 @@ export function removeOrder(order: Order) {
     return array;
 }
 
-interface Invoice {
-    user: string;
-    orders: Order[];
+export function removeAllOrders() {
+    array = [];
+    return array;
 }
 
 export function generateInvoiceFor(orders: Order[]) {
-
-    let invoice: Invoice[] = orders.map(order => {
+    return orders.map(order => {
         return {
             user: order.requester,
-            orders: [order]
+            orders: [{
+                name: order.dish.name,
+                quantity: order.quantity,
+                price: order.price
+            }]
         }
-    })
-
-    return invoice.reduce((acc: any, curr) => {
+    }).reduce((acc: any, curr) => {
         if (acc[curr.user] != undefined) {
             let orders = acc[curr.user];
             orders.push(...curr.orders);
@@ -54,9 +55,7 @@ export function generateInvoiceFor(orders: Order[]) {
     }, {});
 }
 
-export function orderFromMessage(orderMessage: string, senderID: string): Order {
-    let strippedOrder = orderMessage.split("\n")
-
+export function orderFromMessage(message: string, senderID: string): Order {
     let order: Order = {
         dish: {
             id: "",
@@ -69,30 +68,29 @@ export function orderFromMessage(orderMessage: string, senderID: string): Order 
         price: 1000
     }
 
-    const orderTwo = strippedOrder.forEach(element => {
-        if (element.indexOf("link:") != -1) {
-            let url = element.substring(element.indexOf("link:") + 5, element.length).trim()
+    message.split("\n").forEach(nextLine => {
+        if (nextLine.indexOf("link:") != -1) {
+            let url = nextLine.substring(nextLine.indexOf("link:") + 5, nextLine.length).trim()
             if (validateURL(url)) {
                 order.dish.url = url
             }
         }
 
-        if (element.indexOf("comment:") != -1) {
-            let comment = element.substring(element.indexOf("comment:") + 8, element.length).trim()
+        if (nextLine.indexOf("comment:") != -1) {
+            let comment = nextLine.substring(nextLine.indexOf("comment:") + 8, nextLine.length).trim()
             order.comment = comment
         }
 
-        if (element.indexOf("quantity:") != -1) {
-            let quantity = element.substring(element.indexOf("quantity:") + 10, element.length).trim()
+        if (nextLine.indexOf("quantity:") != -1) {
+            let quantity = nextLine.substring(nextLine.indexOf("quantity:") + 10, nextLine.length).trim()
             order.quantity = parseInt(quantity)
         }
 
-        if (element.indexOf("link:") == -1 && element.indexOf("comment:") == -1 && element.indexOf("quantity:") == -1) {
-            if (validateURL(element)) {
-                order.dish.url = element
+        if (nextLine.indexOf("link:") == -1 && nextLine.indexOf("comment:") == -1 && nextLine.indexOf("quantity:") == -1) {
+            if (validateURL(nextLine)) {
+                order.dish.url = nextLine
             }
         }
-    })
-    console.log(order)
+    });
     return order;
 }

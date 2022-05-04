@@ -1,6 +1,6 @@
 
-import {saveOrder, orderFromMessage, generateInvoiceFor} from '../src/orders';
-import {validateURL} from '../src/message'
+import {saveOrder, orderFromMessage, generateInvoiceFor} from '../src/functions/orders';
+import {validateURL} from '../src/functions/message'
 import { Dish } from '../src/specs/dish';
 import { Order } from '../src/specs/order';
 
