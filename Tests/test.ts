@@ -3,6 +3,7 @@ import {saveOrder, orderFromMessage, generateInvoiceFor} from '../src/functions/
 import {validateURL} from '../src/functions/message'
 import { Dish } from '../src/specs/dish';
 import { Order } from '../src/specs/order';
+import { fetchProductInfo } from '../src/resolvers/addProductsToBasket';
 
 // test adding order
 test('add order pushed an order in a list', () => {
@@ -128,4 +129,12 @@ test('check generated invoice', () => {
 
     let invoice = generateInvoiceFor(orders);
     // expect(invoice.length).toBe(orders.length) // to be changed
+})
+
+test ('check product fetching', () => {
+    let product = fetchProductInfo(["https://buy.am/hy/subtitle?imProduct=103983&imOrderNumber=f-28127"]);
+    console.log(product)
+    // expect(product.name).toBe("Բեկոնով սենդվիչ (փոքր) Subtitle")
+    // expect(product.price).toBe("850 ֏")
+    // expect(products.length).toBe(1)
 })

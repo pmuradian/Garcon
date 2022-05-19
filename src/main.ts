@@ -2,7 +2,7 @@
 import 'dotenv/config';
 import { App, subtype } from '@slack/bolt';
 import puppeteer from 'puppeteer';
-import addProductsToBasket from './resolvers/addProductsToBasket';
+import addProductsToBasket, { fetchProductInfo } from './resolvers/addProductsToBasket';
 import {saveOrder, orderFromMessage, getOrders, generateInvoiceFor, removeAllOrders} from './functions/orders';
 import { listeningState, orderState, confirmationState, cancelState, idelState, greetings, confirmations, cancelations } from './specs/globals';
 import { json } from 'stream/consumers';
@@ -78,6 +78,7 @@ app.event('message', async ({ message, say, client }: any): Promise<any> => {
         say("Your time is up");
         say("This is your order, please pay attention");
         console.log(JSON.stringify(generateInvoiceFor(getOrders()), null, 2));
+        
         say(JSON.stringify(generateInvoiceFor(getOrders())).replace(/{|}|"/g,''), null, 2);
         say("@" + selectedUser + " please confirm your order");
         // order foooooood
@@ -110,6 +111,6 @@ app.event('message', async ({ message, say, client }: any): Promise<any> => {
 (async () => {
   // Start your app
   await app.start();
-  
+  fetchProductInfo()
   console.log('⚡️ Garçon app is running!');
 })();
