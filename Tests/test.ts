@@ -127,14 +127,16 @@ test('check generated invoice', () => {
         orders.push(testOrder);
     }
 
-    let invoice = generateInvoiceFor(orders);
+    // let invoice = generateInvoiceFor(orders);
     // expect(invoice.length).toBe(orders.length) // to be changed
 })
 
-test ('check product fetching', () => {
-    let product = fetchProductInfo(["https://buy.am/hy/subtitle?imProduct=103983&imOrderNumber=f-28127"]);
-    console.log(product)
-    // expect(product.name).toBe("Բեկոնով սենդվիչ (փոքր) Subtitle")
-    // expect(product.price).toBe("850 ֏")
-    // expect(products.length).toBe(1)
+jest.setTimeout(20000)
+test ('check product fetching', async () => {
+    let product = await fetchProductInfo(["https://buy.am/hy/subtitle?imProduct=103983&imOrderNumber=f-28127"]);
+    console.log("This is what we got")
+    product.then((value: any) => {
+        expect(value.name).toBe("Բեկոնով սենդվիչ (փոքր) Subtitle")
+        expect(value.price).toBe("850 ֏")
+    })
 })
