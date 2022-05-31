@@ -20,7 +20,7 @@ export const fetchProductInfo = async (urls: any): Promise<any> => {
             await sleep(5000)
 
             if (isOrderModalExistArray.length) {
-                const productTitle = await page.$eval('.entry--label', element => element.textContent);
+                const productTitle = await page.$eval('.product-header', element => element.textContent);
                 const productPrice =  await page.$eval('.price--content', element => element.textContent)
                 await sleep(2000)
 
