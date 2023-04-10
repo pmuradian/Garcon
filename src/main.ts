@@ -30,9 +30,9 @@ const Garçon = {
 let timer: NodeJS.Timeout;
 const timeInterval = 30000 //1000 * 60 * 60;
 
-app.event
-
-app.event('message', async ({ message, say, client }: any): Promise<any> => {
+app.event(
+  'message', 
+  async ({ message, say, client }: any): Promise<any> => {
   try {
     if (message.text.toLowerCase() == "cancel" && timer) {
       clearTimeout(timer);
@@ -68,6 +68,7 @@ app.event('message', async ({ message, say, client }: any): Promise<any> => {
           ['*comment*']: '_comment about your order_',
           ['*quantity*']: '_quantity of your order_'
         }
+        
 
       say(JSON.stringify(f, null, 1).replace(/{|}|"/g,'')) 
       say("*comment* and *quantity* fields are optional");
@@ -80,12 +81,12 @@ app.event('message', async ({ message, say, client }: any): Promise<any> => {
         console.log(JSON.stringify(generateInvoiceFor(getOrders()), null, 2));
         
         say(JSON.stringify(generateInvoiceFor(getOrders())).replace(/{|}|"/g,''), null, 2);
-        say("@" + selectedUser + " please confirm your order");
+        say(`<@${result.user.id}> please confirm the order`);
         // order foooooood
       }, timeInterval);
 
     } else if (Garçon.state == orderState) {
-      let order = await orderFromMessage(message.text, message.user);
+      let order = await orderFromMessage(message.text, result.user.name);
       let orderConfirmation = await saveOrder(order);
 
       if (orderConfirmation) {
@@ -93,7 +94,7 @@ app.event('message', async ({ message, say, client }: any): Promise<any> => {
           user: message.user,
         });
 
-        say("Order saved for @" + result.user.name);
+        say(`Order saved for <@${result.user.name}>`);
       }
     } else if (Garçon.state === confirmationState && message.text.toLowerCase() === "confirm" || message.text.toLowerCase() === "3") {
       say("Order placed");
@@ -106,11 +107,12 @@ app.event('message', async ({ message, say, client }: any): Promise<any> => {
     timer && clearTimeout(timer);
     Garçon.state = idelState;
   }
-});
+}
+);
 
 (async () => {
   // Start your app
   await app.start();
-  fetchProductInfo()
+  // fetchProductInfo()
   console.log('⚡️ Garçon app is running!');
 })();
