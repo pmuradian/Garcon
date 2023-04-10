@@ -34,6 +34,7 @@ app.event(
   'message', 
   async ({ message, say, client }: any): Promise<any> => {
   try {
+    console.log('message.text', message.text);
     if (message.text.toLowerCase() == "cancel" && timer) {
       clearTimeout(timer);
       Garçon.state = idelState;
@@ -49,7 +50,7 @@ app.event(
 
     console.log(Garçon);
 
-    if (message.text.toLowerCase() === "gey garçon" || 
+    if (message.text.toLowerCase() === "hey garçon" || 
     message.text.toLowerCase() === "garçon" || 
     message.text.toLowerCase() === "hey garcon" || 
     message.text.toLowerCase() === "garcon" ||
@@ -86,7 +87,15 @@ app.event(
       }, timeInterval);
 
     } else if (Garçon.state == orderState) {
+      // console.log(message.text);
       let order = await orderFromMessage(message.text, result.user.name);
+
+      console.log('Order in order state: ', order);
+      let asdf = await fetchProductInfo([order.dish.url]);
+      order.price = asdf[0].price;
+      order.dish.name = asdf[0].name;
+      console.log("order", asdf);
+      console.log("price", asdf[0].price);
       let orderConfirmation = await saveOrder(order);
 
       if (orderConfirmation) {

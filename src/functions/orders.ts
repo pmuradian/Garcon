@@ -70,27 +70,31 @@ export function orderFromMessage(message: string, senderID: string): Order {
 
     message.split("\n").forEach(nextLine => {
         if (nextLine.indexOf("link:") != -1) {
-            let url = nextLine.substring(nextLine.indexOf("link:") + 5, nextLine.length).trim()
+            let url = nextLine.substring(nextLine.indexOf("link:") + 5, nextLine.length).trim().replace(/^[<>]+|[<>]+$/g, "");
+            console.log(`url = ${url}`)
             if (validateURL(url)) {
                 order.dish.url = url
             }
         }
 
         if (nextLine.indexOf("comment:") != -1) {
-            let comment = nextLine.substring(nextLine.indexOf("comment:") + 8, nextLine.length).trim()
+            let comment = nextLine.substring(nextLine.indexOf("comment:") + 8, nextLine.length).trim().replace(/^<+|<+$/g, "");
             order.comment = comment
         }
 
         if (nextLine.indexOf("quantity:") != -1) {
-            let quantity = nextLine.substring(nextLine.indexOf("quantity:") + 10, nextLine.length).trim()
+            let quantity = nextLine.substring(nextLine.indexOf("quantity:") + 10, nextLine.length).trim().replace(/^<+|<+$/g, "");
             order.quantity = parseInt(quantity)
         }
 
         if (nextLine.indexOf("link:") == -1 && nextLine.indexOf("comment:") == -1 && nextLine.indexOf("quantity:") == -1) {
-            if (validateURL(nextLine)) {
-                order.dish.url = nextLine
+            let a = nextLine.replace(/^[<>]+|[<>]+$/g, "")
+            if (validateURL(a)) {
+                order.dish.url = a
             }
         }
+
+        console.log('ordeR: ', order);
     });
     return order;
 }
